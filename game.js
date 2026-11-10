@@ -228,8 +228,11 @@ function drawHUD() {
   ctx.textBaseline = 'middle';
   ctx.textAlign = 'left';
   ctx.fillText('Score: ' + state.score, 16, 30);
-  ctx.textAlign = 'right';
-  ctx.fillText('Lives: ' + state.lives, W - 16, 30);
+  const size = BALL_SIZE, gap = 6;
+  for (let i = 0; i < state.lives; i++) {
+    const x = W - 16 - size - i * (size + gap);
+    drawSprite(ctx, 'ball', x, 30 - size / 2, size, size);
+  }
 }
 
 function loop() {

@@ -1,0 +1,32 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Editores / IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Claude Code: config local y personal (skills y CLAUDE.md sí se versionan)
+.claude/settings.local.json
+.claude/worktrees/
+CLAUDE.local.md
+
+# Dependencias y builds (por si se agregan después)
+node_modules/
+dist/
+build/
+
+# Logs y temporales
+*.log
+npm-debug.log*
+*.tmp
+.cache/
+
+# Variables de entorno
+.env
+.env.*

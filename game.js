@@ -136,6 +136,25 @@ function update() {
     ball.y = paddle.y - ball.size;
     ball.vy = -Math.abs(ball.vy);
   }
+
+  // Bloques: rompe uno por frame
+  for (const b of state.blocks) {
+    if (!b.alive) continue;
+    const overlapX = Math.min(ball.x + ball.size, b.x + b.w) - Math.max(ball.x, b.x);
+    const overlapY = Math.min(ball.y + ball.size, b.y + b.h) - Math.max(ball.y, b.y);
+    if (overlapX <= 0 || overlapY <= 0) continue;
+
+    b.alive = false;
+    state.score += POINTS_PER_BLOCK;
+
+    // Eje de colisión: el de menor penetración
+    if (overlapX < overlapY) {
+      ball.vx = -ball.vx;
+    } else {
+      ball.vy = -ball.vy;
+    }
+    break;
+  }
 }
 
 function draw() {

@@ -137,6 +137,17 @@ function update() {
     ball.vy = -Math.abs(ball.vy);
   }
 
+  // Bola cae por abajo: pierde una vida y vuelve al paddle
+  if (ball.y > H) {
+    state.lives--;
+    ball.stuck = true;
+    ball.vx = 0;
+    ball.vy = 0;
+    state.status = 'ready';
+    placeBallOnPaddle();
+    return;
+  }
+
   // Bloques: rompe uno por frame
   for (const b of state.blocks) {
     if (!b.alive) continue;
@@ -167,6 +178,18 @@ function draw() {
   const { paddle, ball } = state;
   drawSprite(ctx, 'paddle', paddle.x, paddle.y, paddle.w, paddle.h);
   drawSprite(ctx, 'ball', ball.x, ball.y, ball.size, ball.size);
+
+  drawHUD();
+}
+
+function drawHUD() {
+  ctx.fillStyle = '#fff';
+  ctx.font = '20px monospace';
+  ctx.textBaseline = 'middle';
+  ctx.textAlign = 'left';
+  ctx.fillText('Score: ' + state.score, 16, 30);
+  ctx.textAlign = 'right';
+  ctx.fillText('Lives: ' + state.lives, W - 16, 30);
 }
 
 function loop() {

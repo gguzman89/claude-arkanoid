@@ -76,7 +76,7 @@ document.addEventListener('keydown', (e) => {
   setKey(e, true);
   if (e.code === 'Space') {
     e.preventDefault();
-    launchBall();
+    if (!e.repeat) launchBall();
   }
 });
 document.addEventListener('keyup', (e) => setKey(e, false));
@@ -86,6 +86,11 @@ canvas.addEventListener('click', () => launchBall());
 
 // Lanza la bola pegada: ±30° respecto a la vertical, hacia arriba
 function launchBall() {
+  // En overlay (victoria / game over), click o Espacio reinicia
+  if (state.status === 'won' || state.status === 'lost') {
+    resetGame();
+    return;
+  }
   if (state.status !== 'ready') return;
   const angle = (Math.random() < 0.5 ? -1 : 1) * (30 * Math.PI / 180);
   state.ball.vx = BALL_SPEED * Math.sin(angle);
@@ -94,7 +99,21 @@ function launchBall() {
   state.status = 'playing';
 }
 
+function resetGame() {
+  state.status = 'ready';
+  state.score = 0;
+  state.lives = LIVES_START;
+  state.paddle.x = (W - PADDLE_W) / 2;
+  state.ball.vx = 0;
+  state.ball.vy = 0;
+  state.ball.stuck = true;
+  state.blocks = createBlocks();
+  placeBallOnPaddle();
+}
+
 function update() {
+  if (state.status === 'won' || state.status === 'lost') return;
+
   // Teclado suma delta sobre la x actual
   const dir = (state.keys.right ? 1 : 0) - (state.keys.left ? 1 : 0);
   if (dir !== 0) setPaddleX(state.paddle.x + dir * PADDLE_SPEED);
@@ -143,7 +162,7 @@ function update() {
     ball.stuck = true;
     ball.vx = 0;
     ball.vy = 0;
-    state.status = 'ready';
+    state.status = state.lives === 0 ? 'lost' : 'ready';
     placeBallOnPaddle();
     return;
   }
@@ -166,6 +185,11 @@ function update() {
     }
     break;
   }
+
+  // Victoria: no quedan bloques vivos
+  if (state.blocks.every((b) => !b.alive)) {
+    state.status = 'won';
+  }
 }
 
 function draw() {
@@ -180,6 +204,22 @@ function draw() {
   drawSprite(ctx, 'ball', ball.x, ball.y, ball.size, ball.size);
 
   drawHUD();
+  if (state.status === 'won' || state.status === 'lost') drawOverlay();
+}
+
+function drawOverlay() {
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.fillStyle = '#fff';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.font = 'bold 56px monospace';
+  ctx.fillText(state.status === 'won' ? '¡VICTORIA!' : 'GAME OVER', W / 2, H / 2 - 40);
+  ctx.font = '28px monospace';
+  ctx.fillText('Score: ' + state.score, W / 2, H / 2 + 20);
+  ctx.font = '20px monospace';
+  ctx.fillText('Click o Espacio para reiniciar', W / 2, H / 2 + 70);
 }
 
 function drawHUD() {

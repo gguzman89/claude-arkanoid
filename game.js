@@ -72,13 +72,70 @@ function setKey(e, pressed) {
       break;
   }
 }
-document.addEventListener('keydown', (e) => setKey(e, true));
+document.addEventListener('keydown', (e) => {
+  setKey(e, true);
+  if (e.code === 'Space') {
+    e.preventDefault();
+    launchBall();
+  }
+});
 document.addEventListener('keyup', (e) => setKey(e, false));
+
+// Click lanza la bola
+canvas.addEventListener('click', () => launchBall());
+
+// Lanza la bola pegada: ±30° respecto a la vertical, hacia arriba
+function launchBall() {
+  if (state.status !== 'ready') return;
+  const angle = (Math.random() < 0.5 ? -1 : 1) * (30 * Math.PI / 180);
+  state.ball.vx = BALL_SPEED * Math.sin(angle);
+  state.ball.vy = -BALL_SPEED * Math.cos(angle);
+  state.ball.stuck = false;
+  state.status = 'playing';
+}
 
 function update() {
   // Teclado suma delta sobre la x actual
   const dir = (state.keys.right ? 1 : 0) - (state.keys.left ? 1 : 0);
   if (dir !== 0) setPaddleX(state.paddle.x + dir * PADDLE_SPEED);
+
+  const { ball, paddle } = state;
+
+  // Bola pegada: sigue al paddle
+  if (ball.stuck) {
+    placeBallOnPaddle();
+    return;
+  }
+
+  ball.x += ball.vx;
+  ball.y += ball.vy;
+
+  // Paredes laterales
+  if (ball.x <= 0) {
+    ball.x = 0;
+    ball.vx = Math.abs(ball.vx);
+  } else if (ball.x + ball.size >= W) {
+    ball.x = W - ball.size;
+    ball.vx = -Math.abs(ball.vx);
+  }
+
+  // Techo
+  if (ball.y <= 0) {
+    ball.y = 0;
+    ball.vy = Math.abs(ball.vy);
+  }
+
+  // Paddle: invierte vy (solo si la bola baja)
+  if (
+    ball.vy > 0 &&
+    ball.x + ball.size > paddle.x &&
+    ball.x < paddle.x + paddle.w &&
+    ball.y + ball.size >= paddle.y &&
+    ball.y + ball.size <= paddle.y + paddle.h + ball.vy
+  ) {
+    ball.y = paddle.y - ball.size;
+    ball.vy = -Math.abs(ball.vy);
+  }
 }
 
 function draw() {

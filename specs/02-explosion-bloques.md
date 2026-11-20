@@ -1,6 +1,6 @@
 # SPEC 02 — Animación de explosión al destruir bloques
 
-> **Status:** Draft
+> **Status:** Implemented
 > **Depends on:** SPEC 01
 > **Date:** 2026-11-12
 > **Objective:** Al romperse, cada bloque muestra durante 150 ms la animación de explosión de 4 frames de su color antes de desaparecer.
@@ -61,18 +61,18 @@ Convenciones:
 
 ## Criterios de aceptación
 
-- [ ] Al romper un bloque, en su lugar se ve la animación de explosión de su mismo color.
-- [ ] La animación recorre los 4 frames en orden y dura 150 ms en total.
-- [ ] Al terminar la animación no queda nada dibujado en la posición del bloque.
-- [ ] La explosión ocupa el mismo rectángulo que el bloque (72×24).
-- [ ] El puntaje suma exactamente 10 en el mismo frame del golpe, no al terminar la animación.
+- [x] Al romper un bloque, en su lugar se ve la animación de explosión de su mismo color.
+- [x] La animación recorre los 4 frames en orden y dura 150 ms en total.
+- [x] Al terminar la animación no queda nada dibujado en la posición del bloque.
+- [x] La explosión ocupa el mismo rectángulo que el bloque (72×24).
+- [x] El puntaje suma exactamente 10 en el mismo frame del golpe, no al terminar la animación.
 - [ ] La bola rebota en el golpe y atraviesa un bloque que está explotando sin rebotar ni sumar puntos.
 - [ ] Varias explosiones pueden verse a la vez sin afectarse entre sí.
-- [ ] Al romper el último bloque, la bola se detiene y el overlay de victoria aparece después de que termina la última explosión, con puntaje 600.
-- [ ] Tras reiniciar desde un overlay se ven 60 bloques y ninguna explosión.
-- [ ] La duración de la explosión es la misma en pantallas de 60 Hz y de 120 Hz.
-- [ ] `assets/spritesheet.js`, `index.html` y `style.css` no cambian.
-- [ ] No se carga ni se reproduce ningún sonido.
+- [x] Al romper el último bloque, la bola se detiene y el overlay de victoria aparece después de que termina la última explosión, con puntaje 600.
+- [x] Tras reiniciar desde un overlay se ven 60 bloques y ninguna explosión.
+- [x] La duración de la explosión es la misma en pantallas de 60 Hz y de 120 Hz.
+- [x] `assets/spritesheet.js`, `index.html` y `style.css` no cambian.
+- [x] No se carga ni se reproduce ningún sonido.
 - [ ] El juego carga con `file://` sin errores en consola.
 
 ## Decisiones tomadas y descartadas

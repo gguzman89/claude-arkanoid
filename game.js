@@ -20,6 +20,7 @@ const state = {
   ball:   { x: 0, y: 0, vx: 0, vy: 0, size: BALL_SIZE, stuck: true },
   blocks: [],
   keys:   { left: false, right: false },
+  time: 0,                    // ms, último timestamp de requestAnimationFrame
 };
 
 function createBlocks() {
@@ -34,6 +35,7 @@ function createBlocks() {
         h: BLOCK_H,
         color: ROW_COLORS[r],
         alive: true,
+        explodedAt: null,
       });
     }
   }
@@ -126,6 +128,13 @@ function update() {
     return;
   }
 
+  // Victoria diferida: sin bloques vivos la bola se detiene;
+  // 'won' recién cuando ningún bloque está explotando
+  if (state.blocks.every((b) => !b.alive)) {
+    if (!state.blocks.some(isExploding)) state.status = 'won';
+    return;
+  }
+
   ball.x += ball.vx;
   ball.y += ball.vy;
 
@@ -175,6 +184,7 @@ function update() {
     if (overlapX <= 0 || overlapY <= 0) continue;
 
     b.alive = false;
+    b.explodedAt = state.time;
     state.score += POINTS_PER_BLOCK;
 
     // Eje de colisión: el de menor penetración
@@ -185,18 +195,22 @@ function update() {
     }
     break;
   }
+}
 
-  // Victoria: no quedan bloques vivos
-  if (state.blocks.every((b) => !b.alive)) {
-    state.status = 'won';
-  }
+function isExploding(b) {
+  return !b.alive && b.explodedAt !== null && state.time - b.explodedAt < EXPLOSION_DURATION;
 }
 
 function draw() {
   ctx.clearRect(0, 0, W, H);
 
   for (const b of state.blocks) {
-    if (b.alive) drawSprite(ctx, 'block_' + b.color, b.x, b.y, b.w, b.h);
+    if (b.alive) {
+      drawSprite(ctx, 'block_' + b.color, b.x, b.y, b.w, b.h);
+    } else if (isExploding(b)) {
+      const i = Math.min(3, Math.floor((state.time - b.explodedAt) / (EXPLOSION_DURATION / 4)));
+      drawFrame(ctx, EXPLOSION_FRAMES[b.color][i], b.x, b.y, b.w, b.h);
+    }
   }
 
   const { paddle, ball } = state;
@@ -235,7 +249,8 @@ function drawHUD() {
   }
 }
 
-function loop() {
+function loop(now) {
+  state.time = now;
   update();
   draw();
   requestAnimationFrame(loop);

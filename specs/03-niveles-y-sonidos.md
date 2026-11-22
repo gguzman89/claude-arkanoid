@@ -100,26 +100,26 @@ Convenciones:
 
 ## Criterios de aceptación
 
-- [ ] El juego carga con `file://` sin errores en consola.
-- [ ] Rebotar en pared lateral, techo o paddle reproduce `ball-bounce.mp3`.
-- [ ] Romper un bloque reproduce `break-sound.mp3` y no `ball-bounce.mp3`.
-- [ ] Golpear un `gray` sin romperlo reproduce `ball-bounce.mp3`.
-- [ ] Perder una vida no reproduce ningún sonido.
+- [x] El juego carga con `file://` sin errores en consola.
+- [x] Rebotar en pared lateral, techo o paddle reproduce `ball-bounce.mp3`.
+- [x] Romper un bloque reproduce `break-sound.mp3` y no `ball-bounce.mp3`.
+- [x] Golpear un `gray` sin romperlo reproduce `ball-bounce.mp3`.
+- [x] Perder una vida no reproduce ningún sonido.
 - [ ] Dos sonidos en frames cercanos se oyen superpuestos, sin cortar el anterior.
-- [ ] Con un `.mp3` ausente el juego funciona igual y la consola no muestra errores no capturados.
-- [ ] El nivel 1 tiene 60 bloques, paddle de 120 px y bola a 6 px/frame.
-- [ ] Cada nivel usa exactamente la velocidad, ancho de paddle, filas `gray` y golpes de la tabla `LEVELS`.
+- [x] Con un `.mp3` ausente el juego funciona igual y la consola no muestra errores no capturados.
+- [x] El nivel 1 tiene 60 bloques, paddle de 120 px y bola a 6 px/frame.
+- [x] Cada nivel usa exactamente la velocidad, ancho de paddle, filas `gray` y golpes de la tabla `LEVELS`.
 - [ ] Las filas `gray` aparecen arriba de las 6 filas de color.
-- [ ] Un `gray` de 2 golpes: el 1er golpe suma 10, rebota, no explota y lo oscurece; el 2do suma 10 y explota.
-- [ ] Un `gray` de 3 golpes (nivel 5) se rompe recién al 3er golpe y suma 30 en total.
-- [ ] El paddle no se sale del canvas con ningún ancho (120 a 80 px), con mouse y con teclado.
-- [ ] Completar los niveles 1 a 4 muestra el overlay "NIVEL N" con N = siguiente nivel.
-- [ ] Tras el overlay "NIVEL N", la bola queda pegada al paddle hasta click o Espacio.
+- [x] Un `gray` de 2 golpes: el 1er golpe suma 10, rebota, no explota y lo oscurece; el 2do suma 10 y explota.
+- [x] Un `gray` de 3 golpes (nivel 5) se rompe recién al 3er golpe y suma 30 en total.
+- [x] El paddle no se sale del canvas con ningún ancho (120 a 80 px), con mouse y con teclado.
+- [x] Completar los niveles 1 a 4 muestra el overlay "NIVEL N" con N = siguiente nivel.
+- [x] Tras el overlay "NIVEL N", la bola queda pegada al paddle hasta click o Espacio.
 - [ ] Puntaje y vidas se conservan al pasar de nivel.
-- [ ] Completar el nivel 5 muestra el overlay de victoria; sin perder bloques el puntaje final es 4500.
-- [ ] Game over en cualquier nivel y reinicio vuelven al nivel 1 con puntaje 0 y 3 vidas.
-- [ ] El HUD muestra `Nivel N/5` con el nivel actual.
-- [ ] `assets/spritesheet.js`, `index.html` y `style.css` no cambian.
+- [x] Completar el nivel 5 muestra el overlay de victoria; sin perder bloques el puntaje final es 4500.
+- [x] Game over en cualquier nivel y reinicio vuelven al nivel 1 con puntaje 0 y 3 vidas.
+- [x] El HUD muestra `Nivel N/5` con el nivel actual.
+- [x] `assets/spritesheet.js`, `index.html` y `style.css` no cambian.
 
 ## Decisiones tomadas y descartadas
 

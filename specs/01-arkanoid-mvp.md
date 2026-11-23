@@ -1,6 +1,6 @@
 # SPEC 01 — MVP jugable de Arkanoid
 
-> **Status:** Approved
+> **Status:** Implemented
 > **Depends on:** ninguno (usa los assets existentes en `assets/`)
 > **Date:** 2026-11-09
 > **Objective:** Un Arkanoid de un solo nivel, jugable en el navegador con mouse y teclado, con 3 vidas, puntaje de 10 por bloque y overlay de victoria / game over.
@@ -73,19 +73,19 @@ Convenciones: origen arriba-izquierda; velocidades en px/frame; `status: 'ready'
 
 ## Criterios de aceptación
 
-- [ ] Abrir `index.html` directo en el navegador (file://) carga el juego sin errores en consola.
-- [ ] El canvas mide exactamente 800×600.
-- [ ] Se dibujan 60 bloques en 10 columnas × 6 filas, una fila por color.
-- [ ] El paddle sigue el mouse y también se mueve con ← → y A D, sin salirse del canvas.
-- [ ] La bola empieza pegada al paddle y no se mueve hasta click o Espacio.
-- [ ] La bola rebota en paredes laterales, techo y paddle.
-- [ ] Romper un bloque lo elimina y suma exactamente 10 puntos.
-- [ ] Si la bola cae por abajo, las vidas bajan en 1 y la bola vuelve al paddle.
-- [ ] El HUD muestra puntaje y vidas actualizados.
-- [ ] Al romper los 60 bloques aparece el overlay de victoria con puntaje 600.
-- [ ] Al llegar a 0 vidas aparece el overlay de game over.
-- [ ] Click o Espacio en un overlay reinicia con 60 bloques, 3 vidas y puntaje 0.
-- [ ] No se carga ni se reproduce ningún sonido.
+- [x] Abrir `index.html` directo en el navegador (file://) carga el juego sin errores en consola.
+- [x] El canvas mide exactamente 800×600.
+- [x] Se dibujan 60 bloques en 10 columnas × 6 filas, una fila por color.
+- [x] El paddle sigue el mouse y también se mueve con ← → y A D, sin salirse del canvas.
+- [x] La bola empieza pegada al paddle y no se mueve hasta click o Espacio.
+- [x] La bola rebota en paredes laterales, techo y paddle.
+- [x] Romper un bloque lo elimina y suma exactamente 10 puntos.
+- [x] Si la bola cae por abajo, las vidas bajan en 1 y la bola vuelve al paddle.
+- [x] El HUD muestra puntaje y vidas actualizados.
+- [ ] Al romper los 60 bloques aparece el overlay de victoria con puntaje 600. _(Reemplazado por SPEC 03: ahora muestra overlay "NIVEL 2"; la victoria llega al completar el nivel 5.)_
+- [x] Al llegar a 0 vidas aparece el overlay de game over.
+- [x] Click o Espacio en un overlay reinicia con 60 bloques, 3 vidas y puntaje 0.
+- [ ] No se carga ni se reproduce ningún sonido. _(Reemplazado por SPEC 03, que agrega sonidos de rebote y rotura.)_
 
 ## Decisiones tomadas y descartadas
 

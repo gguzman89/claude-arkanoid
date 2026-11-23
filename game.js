@@ -48,7 +48,15 @@ const state = {
   blocks: [],
   keys:   { left: false, right: false },
   time: 0,                    // ms, último timestamp de requestAnimationFrame
+  paused: false,              // menú de pausa abierto (congela update, conserva status)
+  menuIndex: 0,               // 0 = Continuar, 1..LEVELS.length = Nivel n
 };
+
+// Menú de pausa: geometría de los ítems (también usada para click con mouse)
+const MENU_TOP = 200, MENU_ITEM_H = 44, MENU_ITEM_W = 260;
+function menuItems() {
+  return ['Continuar', ...LEVELS.map((_, i) => 'Nivel ' + (i + 1))];
+}
 
 // Grilla del nivel actual: filas gray arriba, luego las 6 filas de color
 function createBlocks() {
@@ -86,10 +94,29 @@ function setPaddleX(x) {
 }
 
 // Mouse: fija x centrando el paddle en el cursor
-canvas.addEventListener('mousemove', (e) => {
+function canvasPoint(e) {
   const rect = canvas.getBoundingClientRect();
-  const mouseX = (e.clientX - rect.left) * (W / rect.width);
-  setPaddleX(mouseX - state.paddle.w / 2);
+  return {
+    x: (e.clientX - rect.left) * (W / rect.width),
+    y: (e.clientY - rect.top) * (H / rect.height),
+  };
+}
+
+// Índice del ítem de menú bajo el punto, o -1
+function menuItemAt(p) {
+  if (Math.abs(p.x - W / 2) > MENU_ITEM_W / 2) return -1;
+  const i = Math.floor((p.y - MENU_TOP) / MENU_ITEM_H);
+  return i >= 0 && i < menuItems().length ? i : -1;
+}
+
+canvas.addEventListener('mousemove', (e) => {
+  const p = canvasPoint(e);
+  if (state.paused) {
+    const i = menuItemAt(p);
+    if (i !== -1) state.menuIndex = i;
+    return;
+  }
+  setPaddleX(p.x - state.paddle.w / 2);
 });
 
 // Teclado: ← → y A D
@@ -108,6 +135,16 @@ function setKey(e, pressed) {
   }
 }
 document.addEventListener('keydown', (e) => {
+  // P / Escape abre o cierra el menú de pausa
+  if (e.code === 'KeyP' || e.code === 'Escape') {
+    e.preventDefault();
+    if (!e.repeat) togglePause();
+    return;
+  }
+  if (state.paused) {
+    handleMenuKey(e);
+    return;
+  }
   setKey(e, true);
   if (e.code === 'Space') {
     e.preventDefault();
@@ -116,8 +153,48 @@ document.addEventListener('keydown', (e) => {
 });
 document.addEventListener('keyup', (e) => setKey(e, false));
 
-// Click lanza la bola
-canvas.addEventListener('click', () => launchBall());
+// Click lanza la bola (o elige ítem si el menú de pausa está abierto)
+canvas.addEventListener('click', (e) => {
+  if (state.paused) {
+    const i = menuItemAt(canvasPoint(e));
+    if (i !== -1) selectMenuItem(i);
+    return;
+  }
+  launchBall();
+});
+
+function togglePause() {
+  state.paused = !state.paused;
+  state.menuIndex = 0;
+  state.keys.left = state.keys.right = false;   // evita teclas "pegadas" al volver
+}
+
+// Menú: ↑↓ / W S navegan, Enter / Espacio eligen, 1..5 saltan directo a un nivel
+function handleMenuKey(e) {
+  const n = menuItems().length;
+  if (e.code === 'ArrowUp' || e.code === 'KeyW') {
+    state.menuIndex = (state.menuIndex - 1 + n) % n;
+  } else if (e.code === 'ArrowDown' || e.code === 'KeyS') {
+    state.menuIndex = (state.menuIndex + 1) % n;
+  } else if (e.code === 'Enter' || e.code === 'Space') {
+    if (!e.repeat) selectMenuItem(state.menuIndex);
+  } else if (/^Digit[1-9]$/.test(e.code)) {
+    const lvl = Number(e.code.slice(5));
+    if (lvl <= LEVELS.length) selectMenuItem(lvl);
+  } else {
+    return;
+  }
+  e.preventDefault();
+}
+
+// 0 = continuar; n >= 1 = empezar nivel n desde cero (score 0, vidas completas)
+function selectMenuItem(i) {
+  state.paused = false;
+  if (i === 0) return;
+  state.score = 0;
+  state.lives = LIVES_START;
+  loadLevel(i);
+}
 
 // Lanza la bola pegada: ±30° respecto a la vertical, hacia arriba
 function launchBall() {
@@ -160,6 +237,7 @@ function resetGame() {
 }
 
 function update() {
+  if (state.paused) return;
   if (state.status === 'won' || state.status === 'lost' || state.status === 'levelClear') return;
 
   // Teclado suma delta sobre la x actual
@@ -282,7 +360,36 @@ function draw() {
   drawSprite(ctx, 'ball', ball.x, ball.y, ball.size, ball.size);
 
   drawHUD();
-  if (state.status === 'won' || state.status === 'lost' || state.status === 'levelClear') drawOverlay();
+  if (state.paused) drawPauseMenu();
+  else if (state.status === 'won' || state.status === 'lost' || state.status === 'levelClear') drawOverlay();
+}
+
+function drawPauseMenu() {
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 56px monospace';
+  ctx.fillText('PAUSA', W / 2, 110);
+
+  menuItems().forEach((label, i) => {
+    const y = MENU_TOP + i * MENU_ITEM_H;
+    const selected = i === state.menuIndex;
+    if (selected) {
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+      ctx.fillRect(W / 2 - MENU_ITEM_W / 2, y + 4, MENU_ITEM_W, MENU_ITEM_H - 8);
+    }
+    const current = i === state.level && i > 0;
+    ctx.fillStyle = selected ? '#ff0' : '#fff';
+    ctx.font = (selected ? 'bold ' : '') + '26px monospace';
+    ctx.fillText((selected ? '▶ ' : '  ') + label + (current ? ' •' : ''), W / 2, y + MENU_ITEM_H / 2);
+  });
+
+  ctx.fillStyle = '#aaa';
+  ctx.font = '16px monospace';
+  ctx.fillText('↑↓ elegir · Enter jugar · 1-' + LEVELS.length + ' nivel directo · P/Esc volver', W / 2, H - 50);
 }
 
 function drawOverlay() {
@@ -311,6 +418,11 @@ function drawHUD() {
   ctx.fillText('Score: ' + state.score, 16, 30);
   ctx.textAlign = 'center';
   ctx.fillText('Nivel ' + state.level + '/' + LEVELS.length, W / 2, 30);
+  if (!state.paused) {
+    ctx.fillStyle = '#666';
+    ctx.font = '14px monospace';
+    ctx.fillText('P: pausa', W / 2, H - 12);
+  }
   const size = BALL_SIZE, gap = 6;
   for (let i = 0; i < state.lives; i++) {
     const x = W - 16 - size - i * (size + gap);
